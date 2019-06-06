@@ -27,7 +27,7 @@ class ArticleController extends AbstractController
     /**
      * @var bool
      */
-    private $isDebug;
+    private $isDebug/home/tuanminh;
 
     public function __construct(bool $isDebug)
     {
