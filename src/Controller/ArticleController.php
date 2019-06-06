@@ -2,24 +2,24 @@
 /**
  * Created by PhpStorm.
  * User: tuanminh
- * Date: 28/05/2019
- * Time: 15:53
+ * Date: 06/06/2019
+ * Time: 08:14
  */
 
 namespace App\Controller;
 
 
+
+
 use App\Entity\Article;
-use App\Service\MarkdownHelper;
+use App\Repository\ArticleRepository;
 use App\Service\SlackClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Console\Descriptor\JsonDescriptor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Environment;
+
 
 
 class ArticleController extends AbstractController
@@ -37,32 +37,24 @@ class ArticleController extends AbstractController
     /**
      * @Route("/", name="app_homepage")
      */
-    public function homepage(EntityManagerInterface $em){
+    public function homepage( ArticleRepository $repository){
 
-        $repository =$em->getRepository(Article::class);
-        $articles=$repository->findBy([],['publishedAt'=>'DESC']);
-
+        $articles=$repository->findAllPublishedOrderbyNewest();
         return $this->render('article/homepage.html.twig',[
-                'articles'=>$articles,
-            ]);
+            'articles'=>$articles,
+        ]);
     }
 
     /**
      * @Route("/news/{slug}",name="article_show")
      */
-    public function show($slug, SlackClient $slack, EntityManagerInterface $em){
+    public function show(Article $article, SlackClient $slack){
 
-        if($slug=='khaaaaan') {
-             $slack->sendMessage('Khan','Ah, Kirk, my old friend...');
+        if($article=='khaaaaan') {
+            $slack->sendMessage('Khan','Ah, Kirk, my old friend...');
 
         }
-        $repository = $em->getRepository(Article::class);
-        /** @var Article $article */
-        $article=$repository->findOneBy(['slug'=>$slug]);
 
-        if(!$article){
-            throw $this->createNotFoundException(sprintf('No article for slug "%s"', $slug));
-        }
 
         $comments=['this is comment 1',
             'This is comment 2',
@@ -77,10 +69,14 @@ class ArticleController extends AbstractController
     /**
      * @Route("/news/{slug}/heart", name="article_toggle_heart",methods={"POST"})
      */
-    public function toggleArticleHeart($slug, LoggerInterface $logger){
+    public function toggleArticleHeart(Article $article, LoggerInterface $logger, EntityManagerInterface $em){
+        $article->incrementHeartCount();
+        $em->flush();
         $logger->info('OK');
-        return new JsonResponse(['hearts'=>rand(5,100)]);
+        return new JsonResponse(['hearts'=>$article->getHeartCount()]);
+
 
     }
+
 
 }

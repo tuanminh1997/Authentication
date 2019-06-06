@@ -23,18 +23,8 @@ class ArticleAdminController extends AbstractController
 
 
     public function new(EntityManagerInterface $em){
-        $article=new Article();
-        $article->setTitle('Bacon')
-            ->setSlug('b-a-c-o-n-'.rand(100,999))
-            ->setContent('This is content');
 
-
-        if(rand(1,10)>2){
-            $article->setPublishedAt(new \DateTime(sprintf('-%d days', rand(1, 100))));
-        }
-        $em->persist($article);
-        $em->flush();
-
+            die('todo');
         return new Response(sprintf("create new article id:#%d slug:%s",
                 $article->getId(),
                 $article->getSlug())
