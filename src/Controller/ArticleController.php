@@ -27,7 +27,7 @@ class ArticleController extends AbstractController
     /**
      * @var bool
      */
-    private $isDebug/home/tuanminh;
+    private $isDebug;
 
     public function __construct(bool $isDebug)
     {
@@ -35,7 +35,7 @@ class ArticleController extends AbstractController
         $this->isDebug = $isDebug;
     }
     /**
-     * @Route("/", name="app_homepage")
+     * @Route("/")
      */
     public function homepage( ArticleRepository $repository){
 
