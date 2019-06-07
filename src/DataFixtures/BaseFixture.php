@@ -20,6 +20,9 @@ abstract class BaseFixture extends Fixture
     private $manager;
     protected $faker;
     /**@var Generator */
+
+    private $referencesIndex=[];
+
     abstract protected function loadData(ObjectManager $em);
 
     public function load(ObjectManager $manager)

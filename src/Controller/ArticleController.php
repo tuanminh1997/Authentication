@@ -13,6 +13,7 @@ namespace App\Controller;
 
 use App\Entity\Article;
 use App\Repository\ArticleRepository;
+use App\Repository\CommentRepository;
 use App\Service\SlackClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -48,21 +49,14 @@ class ArticleController extends AbstractController
     /**
      * @Route("/news/{slug}",name="article_show")
      */
-    public function show(Article $article, SlackClient $slack){
+    public function show(Article $article, SlackClient $slack, CommentRepository $commentRepository){
 
         if($article=='khaaaaan') {
             $slack->sendMessage('Khan','Ah, Kirk, my old friend...');
 
         }
-
-
-        $comments=['this is comment 1',
-            'This is comment 2',
-            'This is comment 3'];
-
         return $this->render('article/show.html.twig',[
             'article'=>$article,
-            'comments' =>$comments,
         ]);
     }
 

@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Entity;
+use App\Repository\ArticleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
@@ -63,20 +67,17 @@ class Article
      */
     private $imageFilename;
 
-    /**
-     * @ORM\Column(type="datetime",nullable=true)
-     * @Gedmo\Timestampable(on="create")
-     */
-    private $createAt;
 
     /**
-     * @ORM\Column(type="datetime",nullable=true)
-     * @Gedmo\Timestampable(on="update")
-
+     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="article",fetch="EXTRA_LAZY")
+     * @ORM\OrderBy({"createdAt"="DESC"})
      */
-    private $updateAt;
+    private $comments;
 
-
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -181,30 +182,48 @@ class Article
     
     }
 
-    public function getCreateAt(): ?\DateTimeInterface
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
     {
-        return $this->createAt;
+        return $this->comments;
     }
 
-    public function setCreateAt(\DateTimeInterface $createAt): self
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getNonDeletedComments(): Collection
     {
-        $this->createAt = $createAt;
+        $criteria= ArticleRepository::createNonDeletedCriteria();
+        return $this->comments->matching($criteria);
+    }
+
+
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setArticle($this);
+        }
 
         return $this;
     }
 
-    public function getUpdateAt(): ?\DateTimeInterface
+    public function removeComment(Comment $comment): self
     {
-        return $this->updateAt;
-    }
-
-    public function setUpdateAt(\DateTimeInterface $updateAt): self
-    {
-        $this->updateAt = $updateAt;
+        if ($this->comments->contains($comment)) {
+            $this->comments->removeElement($comment);
+            // set the owning side to null (unless already changed)
+            if ($comment->getArticle() === $this) {
+                $comment->setArticle(null);
+            }
+        }
 
         return $this;
     }
-
 
 
 }
