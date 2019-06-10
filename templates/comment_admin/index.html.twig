@@ -1,6 +1,6 @@
 {% extends 'content_base.html.twig' %}
 
-{% block title %}Manager Comments{% endblock %}
+{% block title %}Manager Comments {% endblock %}
 
 {% block content_class %}{{ parent() }} show-article-container-border-green{% endblock %}
 
@@ -8,7 +8,7 @@
 
                 <div class="row">
                     <div class="col-sm-12">
-                        <h1>Manager Comments</h1>
+                        <h1>Manager Comments({{ pagination.getTotalItemCount }})</h1>
 
                         <form>
                             <div class="input-group mb-3">
@@ -16,6 +16,7 @@
                                        name="q"
                                        class="form-control"
                                        placeholder="Search..."
+                                       value="{{ app.request.query.get('q') }}"
                                 >
                                 <div class="input-group-append">
                                     <button type="submit"
@@ -36,7 +37,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for comment in comments %}
+                            {% for comment in pagination %}
                                 <tr>
                                     <td>
                                         <a href="{{ path('article_show',{'slug': comment.article.slug}) }}">
@@ -58,12 +59,17 @@
 
 
                                 </tr>
+                                {% else %}
+                                <td colspan="4" class="text-center">
+                                    No comments found!
+                                </td>
 
                             {% endfor %}
 
                             </tbody>
                         </table>
 
+                        {{ knp_pagination_render(pagination) }}
 
                     </div>
                 </div>

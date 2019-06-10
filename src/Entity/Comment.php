@@ -52,7 +52,7 @@ class Comment
 
     public function setAuthorName(string $authorName): self
     {
-        $this->authorName = $authorNaauthorNameme;
+        $this->authorName = $authorName;
 
         return $this;
     }
