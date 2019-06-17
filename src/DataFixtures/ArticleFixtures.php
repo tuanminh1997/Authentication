@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Article;
 use App\Entity\Tag;
+use App\Entity\User;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
@@ -19,10 +20,7 @@ class ArticleFixtures extends BaseFixture implements DependentFixtureInterface
         'mercury.jpeg',
         'lightspeed.png',
     ];
-    private static $articleAuthors = [
-        'Tuan Minh',
-        'Minh Nguyen',
-    ];
+
     protected function loadData(ObjectManager $manager)
     {
 
@@ -30,12 +28,11 @@ class ArticleFixtures extends BaseFixture implements DependentFixtureInterface
             $article->setTitle($this->faker->randomElement(self::$articleTitles))
                 ->setContent('This is content');
 
-
             if ($this->faker->boolean(70)) {
                 $article->setPublishedAt($this->faker->dateTimeBetween('-100days','-1days'));
             }
 
-            $article->setAuthor($this->faker->randomElement(self::$articleAuthors))
+            $article->setAuthor($this->getRandomReference(User::class))
                 ->setHeartCount($this->faker->numberBetween(5,100))
                 ->setImageFilename($this->faker->randomElement(self::$articleImages));
 
@@ -53,6 +50,7 @@ class ArticleFixtures extends BaseFixture implements DependentFixtureInterface
     public function getDependencies()
     {
         return [
+            UserFixture::class,
             TagFixture::class
 
         ];
