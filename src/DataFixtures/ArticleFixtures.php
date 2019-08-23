@@ -24,7 +24,7 @@ class ArticleFixtures extends BaseFixture implements DependentFixtureInterface
     protected function loadData(ObjectManager $manager)
     {
 
-        $this->createMany(Article::class,10,function (Article  $article,$count) use ($manager){
+        $this->createMany(Article::class,10,function (Article  $article, $count) use ($manager){
             $article->setTitle($this->faker->randomElement(self::$articleTitles))
                 ->setContent('This is content');
 

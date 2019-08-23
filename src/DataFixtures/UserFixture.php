@@ -39,6 +39,7 @@ class UserFixture extends BaseFixture
             $user->setEmail(sprintf('minh%d@gmail.com', $i));
             $user->setFirstName($this->faker->firstName);
             $user->setRoles(['ROLE_ADMIN']);
+            $user->setAgreeTerms();
             $user->setPassword($this->passwordEncoder->encodePassword(
                 $user,
                 '123456'

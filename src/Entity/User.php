@@ -5,12 +5,18 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @UniqueEntity(
+ *     fields={"email"},
+ *     message="I think you've already register"
+ * )
  */
 class User implements UserInterface
 {
@@ -24,6 +30,8 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups("main")
+     * @Assert\NotBlank(message="Please enter an email")
+     * @Assert\Email()
      */
     private $email;
 
@@ -33,7 +41,7 @@ class User implements UserInterface
     private $roles = [];
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255,nullable=true)
      * @Groups("main")
      */
     private $firstName;
@@ -55,9 +63,14 @@ class User implements UserInterface
     private $apiTokens;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Article", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="App\Entity\Article", mappedBy="author",fetch="EXTRA_LAZY")
      */
     private $articles;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $agreeTermsAt;
 
     public function __construct()
     {
@@ -244,5 +257,23 @@ class User implements UserInterface
     {
         return $this->getFirstName();
 
+    }
+
+    public function getAgreeTermsAt(): ?\DateTimeInterface
+    {
+        return $this->agreeTermsAt;
+    }
+
+    public function setAgreeTermsAt(\DateTimeInterface $agreeTermsAt): self
+    {
+        $this->agreeTermsAt = $agreeTermsAt;
+
+        return $this;
+    }
+    public function setAgreeTerms()
+    {
+        $this->agreeTermsAt = new \DateTime();
+
+        return $this;
     }
 }

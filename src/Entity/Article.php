@@ -4,17 +4,11 @@ namespace App\Entity;
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\Table;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\GeneratedValue;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\Timestampable\Traits\Timestampable;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 
 /**
@@ -33,6 +27,7 @@ class Article
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Title not empty")
      */
     private $title;
 
@@ -77,8 +72,19 @@ class Article
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="articles")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="Please set an author")
      */
     private $author;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $location;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $specificLocationName;
 
     public function __construct()
     {
@@ -138,6 +144,11 @@ class Article
         $this->publishedAt = $publishedAt;
 
         return $this;
+    }
+
+    public function isPublished():bool
+    {
+        return $this->publishedAt !== null;
     }
 
     public function getHeartCount(): ?int
@@ -254,6 +265,47 @@ class Article
     public function setAuthor(?User $author): self
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * @Assert\Callback()
+     */
+
+    public function validate(ExecutionContextInterface $context, $payload)
+    {
+        if(stripos($this->getTitle(),'the title') !== false){
+            $context->buildViolation('This value is too long.')
+                ->atPath('title')
+                ->addViolation();
+        }
+
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?string $location): self
+    {
+        $this->location = $location;
+        if(!$this->location || $this->location ==='interstellar_space'){
+            $this->setSpecificLocationName(null);
+        }
+
+        return $this;
+    }
+
+    public function getSpecificLocationName(): ?string
+    {
+        return $this->specificLocationName;
+    }
+
+    public function setSpecificLocationName(?string $specificLocationName): self
+    {
+        $this->specificLocationName = $specificLocationName;
 
         return $this;
     }
